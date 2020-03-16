@@ -4,7 +4,7 @@ function doPost(e) {
   var ary = word.split(":");
   getBookData(ary[1]);
 }
-
+//
 
 function getBookData(val){
   // スプレッドシート取り出したタイトルと場所をbookInformationに格納。
@@ -26,7 +26,7 @@ function getBookData(val){
   var testString = val;  // フォームから入力された値。今は仮にデザインとしている。
   var testPlace = '大阪'; // フォームから入力された値。今は仮に大阪としている。
   var searchedBookInformation = [];
-  
+
   // TODO: elseの時の処理
   if(placeInputed){
     for(const i in bookInformation){
@@ -118,15 +118,14 @@ function postSearchResult(payload){
    UrlFetchApp.fetch(url, options);
 }
 
-    
-    
-    
-    
-    
-  
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
