@@ -81,6 +81,21 @@ function getBookData(KeyWord){
     }else{
       //本が見つかった時検索結果を表示
       var blockKit = [];
+      blockKit.push(
+        {
+          "type": "context",
+          "elements":[
+            {
+              "type": "mrkdwn",
+              "text": "「" + KeyWord + "」" + "の検索結果"
+            }
+              ]
+        },
+        {
+          "type": "divider"
+        }
+        
+      )
       for(const i in searchedBookInformation){
         blockKit.push(
 		　　　　　　{
@@ -92,9 +107,9 @@ function getBookData(KeyWord){
 		　　　　　　		}
 		　　　　　　	],
 	  　　　　　　 },
-		　　　　　　 {
-		　　　　　　	 "type": "divider"
-		　　　　　　 }
+		　　　　　　{
+		　　　　　　	"type": "divider"
+		　　　　　　}
         　)
       }
       var jsonData = {"response_type": "ephemeral", "blocks": blockKit};
@@ -102,7 +117,6 @@ function getBookData(KeyWord){
       postSearchResult(payload)
     }
 }
-
 
 //検索結果をpost
 function postSearchResult(payload){
