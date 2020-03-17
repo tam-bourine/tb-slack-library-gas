@@ -3,7 +3,13 @@ function doPost(e) {
   var params = JSON.parse(e.postData.getDataAsString());
   var keyWord = params.key;
   var keyPlace = params.place;
-  getBookData(keyWord, keyPlace);
+  //getBookData(keyWord, keyPlace);
+  //res
+  var res = ContentService.createTextOutput();
+  res = res.setMimeType(ContentService.MimeType.JAVASCRIPT);
+  res = res.setContent(JSON.stringify(getBookData(keyWord, keyPlace)));
+
+  return res
 }
 
 
@@ -45,49 +51,56 @@ function getBookData(KeyWord, place){
       }
     }
   }
+  return {
+    "result": searchedBookInformation
+  }
+}
+
+/*
+
   //本が見つからない時
   if(searchedBookInformation.length === 0){
     var blockKit = [
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "本は無いみたい！！購入依頼を出しますか？"
-        }
-      },
-      {
-        "type": "actions",
-        "elements": [
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "出す！"
-            },
-            "style": "primary",
-            "value": "出す！"
-          },
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "emoji": true,
-              "text": "出さない"
-            },
-            "style": "danger",
-            "value": "出さない"
-          }
-        ]
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "本は無いみたい！！購入依頼を出しますか？"
       }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "emoji": true,
+            "text": "出す！"
+          },
+          "style": "primary",
+          "value": "出す！"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "emoji": true,
+            "text": "出さない"
+          },
+          "style": "danger",
+          "value": "出さない"
+        }
+      ]
+     }
     ]
     var jsonData = {"blocks": blockKit};
     var payload = JSON.stringify(jsonData);
     postSearchResult(payload)
-  }else{
-    //本が見つかった時検索結果を表示
-    var blockKit = [];
-    blockKit.push(
+    }else{
+      //本が見つかった時検索結果を表示
+      var blockKit = [];
+      blockKit.push(
         {
           "type": "context",
           "elements":[
@@ -95,34 +108,34 @@ function getBookData(KeyWord, place){
               "type": "mrkdwn",
               "text": "「" + KeyWord + "」" + "の検索結果"
             }
-          ]
+              ]
         },
         {
           "type": "divider"
         }
 
-    )
-    for(const i in searchedBookInformation){
-      blockKit.push(
-          {
-            "type": "context",
-            "elements": [
-              {
-                "type": "mrkdwn",
-                "text": ":books: " + searchedBookInformation[i].name + "\n" + ":office: " + searchedBookInformation[i].place
-              }
-            ],
-          },
-          {
-            "type": "divider"
-          }
       )
+      for(const i in searchedBookInformation){
+        blockKit.push(
+		　　　　　　{
+		　　　　　　	"type": "context",
+		　　　　　　	"elements": [
+		　　　　　　		{
+		　　　　　　			"type": "mrkdwn",
+                    "text": ":books: " + searchedBookInformation[i].name + "\n" + ":office: " + searchedBookInformation[i].place
+		　　　　　　		}
+		　　　　　　	],
+	  　　　　　　 },
+		　　　　　　{
+		　　　　　　	"type": "divider"
+		　　　　　　}
+        　)
+      }
+      var jsonData = {"blocks": blockKit};
+      var payload = JSON.stringify(jsonData);
+      console.log(payload)
+      postSearchResult(payload)
     }
-    var jsonData = {"blocks": blockKit};
-    var payload = JSON.stringify(jsonData);
-    console.log(payload)
-    postSearchResult(payload)
-  }
 }
 
 //検索結果をpost
@@ -132,8 +145,8 @@ function postSearchResult(payload){
     "method" : "POST",
     "headers": {"Content-type": "application/json"},
     "payload": payload
-  };
-  UrlFetchApp.fetch(url, options);
+   };
+   UrlFetchApp.fetch(url, options);
 }
 
 
@@ -147,12 +160,12 @@ function test(payload){
     "method" : "POST",
     "headers": {"Content-type": "application/json"},
     "payload": payload
-  };
-  UrlFetchApp.fetch(url, options);
+   };
+   UrlFetchApp.fetch(url, options);
 }
 
 
 
-
+*/
 
 
