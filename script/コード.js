@@ -1,10 +1,8 @@
 //投稿されたデータを取得
-function doPost(e) {
-  var word = e.parameter.text
-  var ary = word.split(":");
-  getBookData(ary[1]);
+function doGet(e) {
+  var keyWord = e.parameter.key;
+  getBookData(keyWord);
 }
-//
 
 function getBookData(val){
   // スプレッドシート取り出したタイトルと場所をbookInformationに格納。
@@ -12,10 +10,8 @@ function getBookData(val){
   var bookInformation,bookName,bookPlace,lastRow;
   lastRow = sheet.getLastRow(); // 値が入っている最後の行
   var bookInformation = [];
-  for(let i = 3; i <= lastRow; i++){ // mapを使いたい
-    bookInformation.push({});
-  };
   for(var i = 3; i <= lastRow; i++){
+    bookInformation.push({});
     bookName = sheet.getRange(i, 2).getValue();
     bookPlace = sheet.getRange(i, 3).getValue();
     bookInformation[i-3].name = bookName;
@@ -84,25 +80,26 @@ function getBookData(val){
     postSearchResult(payload)
     }else{
       //本が見つかった時検索結果を表示
+      var blockKit = [];
       for(const i in searchedBookInformation){
-        var blockKit = [
-		{
-			"type": "context",
-			"elements": [
-				{
-					"type": "mrkdwn",
-					"text": "本のタイトル ： "+ searchedBookInformation[i].name + "  場所 : " + searchedBookInformation[i].place
-				}
-			],
-	   },
-		{
-			"type": "divider"
-		}
-	]
-        var jsonData = {"blocks": blockKit};
-        var payload = JSON.stringify(jsonData);
-        postSearchResult(payload)
+        blockKit.push(
+		　　　　　　{
+		　　　　　　	"type": "context",
+		　　　　　　	"elements": [
+		　　　　　　		{
+		　　　　　　			"type": "mrkdwn",
+    　　　　　　			"text": ":sushi: :book:"+ searchedBookInformation[i].name + "  場所 : " + searchedBookInformation[i].place
+		　　　　　　		}
+		　　　　　　	],
+	  　　　　　　 },
+		　　　　　　{
+		　　　　　　	"type": "divider"
+		　　　　　　}
+        　)
       }
+      var jsonData = {"blocks": blockKit};
+      var payload = JSON.stringify(jsonData);
+      postSearchResult(payload)
     }
 }
 
@@ -111,21 +108,9 @@ function getBookData(val){
 function postSearchResult(payload){
     var url ="https://hooks.slack.com/services/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";
     var options={
-  "method" : "POST",
-  "headers": {"Content-type": "application/json"},
-  "payload" : payload
+         "method" : "POST",
+         "headers": {"Content-type": "application/json"},
+         "payload" : payload
    };
    UrlFetchApp.fetch(url, options);
 }
-
-
-
-
-
-
-
-
-
-
-
-
