@@ -4,7 +4,7 @@ function doGet(e) {
   getBookData(keyWord);
 }
 
-function getBookData(val){
+function getBookData(KeyWord){
   // スプレッドシート取り出したタイトルと場所をbookInformationに格納。
   var sheet = SpreadsheetApp.getActiveSheet();
   var bookInformation,bookName,bookPlace,lastRow;
@@ -19,7 +19,7 @@ function getBookData(val){
   };
   // 条件に合致したタイトルと場所をsearchedBookInformationに格納。
   var placeInputed = false;
-  var testString = val;  // フォームから入力された値。今は仮にデザインとしている。
+  var testString = KeyWord;  // フォームから入力された値。今は仮にデザインとしている。
   var testPlace = '大阪'; // フォームから入力された値。今は仮に大阪としている。
   var searchedBookInformation = [];
 
@@ -88,29 +88,29 @@ function getBookData(val){
 		　　　　　　	"elements": [
 		　　　　　　		{
 		　　　　　　			"type": "mrkdwn",
-    　　　　　　			"text": ":sushi: :book:"+ searchedBookInformation[i].name + "  場所 : " + searchedBookInformation[i].place
+                    "text": ":books: " + searchedBookInformation[i].name + "\n" + ":office: " + searchedBookInformation[i].place
 		　　　　　　		}
 		　　　　　　	],
 	  　　　　　　 },
-		　　　　　　{
-		　　　　　　	"type": "divider"
-		　　　　　　}
+		　　　　　　 {
+		　　　　　　	 "type": "divider"
+		　　　　　　 }
         　)
       }
-      var jsonData = {"blocks": blockKit};
+      var jsonData = {"response_type": "ephemeral", "blocks": blockKit};
       var payload = JSON.stringify(jsonData);
       postSearchResult(payload)
     }
 }
 
 
- //検索結果をpost
+//検索結果をpost
 function postSearchResult(payload){
-    var url ="https://hooks.slack.com/services/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";
+    var url ="https://hooks.slack.com/services/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"; 
     var options={
          "method" : "POST",
          "headers": {"Content-type": "application/json"},
-         "payload" : payload
+         "payload": payload,
    };
    UrlFetchApp.fetch(url, options);
 }
