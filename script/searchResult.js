@@ -1,10 +1,10 @@
 //投稿されたデータを取得
 function doPost(e) {
-  var params = JSON.parse(e.postData.getDataAsString());
-  var keyWord = params.key;
-  var keyPlace = params.place;
+  const params = JSON.parse(e.postData.getDataAsString());
+  const keyWord = params.key;
+  const keyPlace = params.place;
   //レスポンス処理
-  var res = ContentService.createTextOutput();
+  const res = ContentService.createTextOutput();
   res = res.setMimeType(ContentService.MimeType.JAVASCRIPT);
   res = res.setContent(JSON.stringify(getBookData(keyWord, keyPlace)));
 
@@ -12,40 +12,41 @@ function doPost(e) {
 }
 
 
-function getBookData(KeyWord, place){
-  // スプレッドシート取り出したタイトルと場所をbookInformationに格納。
-  var sheet = SpreadsheetApp.getActiveSheet();
-  var bookInformation,bookName,bookPlace,lastRow;
-  lastRow = sheet.getLastRow(); // 値が入っている最後の行
+function getBookData(keyWord, keyPlace){
+  // スプレッドシートから取り出したタイトルと場所をbookInformationに格納。
+  const sheet = SpreadsheetApp.getActiveSheet();
+  var savedBookTitle, savedBookPlace;
+  const columnAVals = sheet.getRange('A:A').getValues();
+  const lastRow = columnAVals.filter(String).length;
+  //lastRow = sheet.getLastRow();
   var bookInformation = [];
-  for(var i = 3; i <= lastRow; i++){
+  for(let i = 3; i <= lastRow; i++){
     bookInformation.push({});
-    bookName = sheet.getRange(i, 2).getValue();
-    bookPlace = sheet.getRange(i, 3).getValue();
-    bookInformation[i-3].name = bookName;
-    bookInformation[i-3].place = bookPlace;
+    savedBookTitle = sheet.getRange(i, 2).getValue();
+    savedBookPlace = sheet.getRange(i, 3).getValue();
+    bookInformation[i-3].name = savedBookTitle;
+    bookInformation[i-3].place = savedBookPlace;
   };
-  // 条件に合致したタイトルと場所をsearchedBookInformationに格納。
-  var placeInputed = false;
-  var testString = KeyWord;  // フォームから入力された値。今は仮にデザインとしている。
-  var testPlace = place; // フォームから入力された値。今は仮に大阪としている。
+  // 検索条件に合致したタイトルと場所をsearchedBookInformationに格納。
+  const placeInputed = false;
+  const searchingBookTitle = keyWord;
+  const searchingBookPlace = keyPlace;
   var searchedBookInformation = [];
-  if(testPlace !== "unselected"){
+  if(searchingBookPlace !== "unselected"){
     placeInputed = true
   }
-
   //  検索処理
   if(placeInputed){
-    for(const i in bookInformation){
-      if(bookInformation[i].name.indexOf(testString) != -1){
-        if(bookInformation[i].place == testPlace){
+    for(let i in bookInformation){
+      if(bookInformation[i].name.indexOf(searchingBookTitle) != -1){
+        if(bookInformation[i].place == searchingBookPlace){
           searchedBookInformation.push(bookInformation[i]);
         };
       }
     }
   }else{
-    for(const i in bookInformation){
-      if(bookInformation[i].name.indexOf(testString) != -1){
+    for(let i in bookInformation){
+      if(bookInformation[i].name.indexOf(searchingBookTitle) != -1){
         searchedBookInformation.push(bookInformation[i]);
       }
     }
@@ -53,4 +54,16 @@ function getBookData(KeyWord, place){
   return {
     "result": searchedBookInformation
   }
+}
+
+// 購入依頼をスプレッドシートに記載
+function getPurchaseRequestedData(purchaseRequestedBookTitle, purchaseRequestedPlace, purchaser, remarks){
+  const sheet = SpreadsheetApp.getActiveSheet();
+  const columnIVals = sheet.getRange('I:I').getValues();
+  const lastRow = columnIVals.filter(String).length;
+  sheet.getRange(lastRow+1, 9).setValue(lastRow-1);
+  sheet.getRange(lastRow+1, 10).setValue(purchaseRequestedBookTitle);
+  sheet.getRange(lastRow+1, 11).setValue(purchaseRequestedPlace);
+  sheet.getRange(lastRow+1, 12).setValue(purchaser);
+  sheet.getRange(lastRow+1, 13).setValue(remarks);
 }
