@@ -5,18 +5,18 @@ function doPost(e) {
   let keyPlace = params.place;
   let title = params.reqTitle;
   let place = params.reqPlace;
-  let purchaser = params. reqUser;
+  let purchaser = params.reqUser;
   let remarks = params.reqAbout;
   //レスポンス処理
-  let res = ContentService.createTextOutput();
-  res = res.setMimeType(ContentService.MimeType.JAVASCRIPT);
-  res = res.setContent(JSON.stringify(getBookData(keyWord, keyPlace)));
+  let throwBookData = ContentService.createTextOutput();
+  throwBookData = throwBookData.setMimeType(ContentService.MimeType.JAVASCRIPT);
+  throwBookData = throwBookData.setContent(JSON.stringify(getBookData(keyWord, keyPlace)));
   
-  let res2 = ContentService.createTextOutput();
-  res2 = res2.setMimeType(ContentService.MimeType.JAVASCRIPT);
-  res2 = res2.setContent(JSON.stringify(getPurchaseRequestedData(title, place, purchaser, remarks)));
+  let throwPurchaseRequestData = ContentService.createTextOutput();
+  throwPurchaseRequestData = throwPurchaseRequestData.setMimeType(ContentService.MimeType.JAVASCRIPT);
+  throwPurchaseRequestData = throwPurchaseRequestData.setContent(JSON.stringify(getPurchaseRequestedData(title, place, purchaser, remarks)));
 
-  return res
+  return throwBookData;
 }
 
 
