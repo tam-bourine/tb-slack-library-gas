@@ -27,10 +27,11 @@ function getBookData(keyWord, keyPlace){
   let columnAVals = sheet.getRange('A:A').getValues();
   let lastRow = columnAVals.filter(String).length;
   let bookInformation = [];
-  for(let i = 3; i <= lastRow; i++){
+  let startNumber = 3;
+  for(let i = startNumber; i <= lastRow; i++){
     bookInformation.push({});
-    bookInformation[i-3].name = sheet.getRange(i, 2).getValue();
-    bookInformation[i-3].place = sheet.getRange(i, 3).getValue();
+    bookInformation[i-startNumber].name = sheet.getRange(i, 2).getValue();
+    bookInformation[i-startNumber].place = sheet.getRange(i, 3).getValue();
   };
   // 検索条件に合致したタイトルと場所をsearchedBookInformationに格納。
   let placeInputed = false;
