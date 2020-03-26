@@ -1,3 +1,6 @@
+// @ts-ignore
+import dotenv from 'dotenv'
+
 //検索結果のレスポンス処理
 export function doPost(e: any): any{
     let params: any = JSON.parse(e.postData.getDataAsString());
@@ -20,10 +23,10 @@ export function doPost(e: any): any{
     return searchResult
 }
 
-
+dotenv.config()
 // スプレッドシートから取り出したタイトルと場所をbookInformationに格納
 export function getBookData(): Array<any>{
-    let spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートid>'); // TODO: envファイル
+    let spreadSheet: any = SpreadsheetApp.openById(process.env.SPREAD_SHEET_id);
     let sheet:any = spreadSheet.getSheetByName('library');
     let columnAVals: any = sheet.getRange('A:A').getValues();
     let lastRow: number = columnAVals.filter(String).length;
