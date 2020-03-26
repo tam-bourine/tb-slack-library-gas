@@ -67,7 +67,8 @@ export function searchBookData(keyWord: string, keyPlace: string, bookInformatio
 
 // 購入依頼をスプレッドシートに記載
 export function throwPurchaseRequest(title: string, place: string, purchaser: string, remarks: string): void{
-    let sheet: any = SpreadsheetApp.getActiveSheet();
+    let spreadSheet: any = SpreadsheetApp.openById(process.env.SPREAD_SHEET_id);
+    let sheet:any = spreadSheet.getSheetByName('library');
     let columnIVals: any = sheet.getRange('J:J').getValues();
     let lastRow: string = columnIVals.filter(String).length;
     sheet.getRange(lastRow+1, 10).setValue(title);
