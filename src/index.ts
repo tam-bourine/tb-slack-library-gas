@@ -1,78 +1,110 @@
-// @ts-ignore
-import dotenv from 'dotenv'
-
 //検索結果のレスポンス処理
 export function doPost(e: any): any{
-    let params: any = JSON.parse(e.postData.getDataAsString());
-    let keyWord: string = params.key;
-    let keyPlace: string = params.place;
-    let bookInformation: any = getBookData();
-    let searchedBookData: Object = searchBookData(keyWord, keyPlace, bookInformation)
+    const params: any = JSON.parse(e.postData.getDataAsString());
+    if(params.key){
+        return postSearchedBookList(params.key, params.place);
+    } else {
+        throwPurchaseRequest(params.reqTitle, params.reqPlace, params.reqUser, params.reqAbout);
+    }
+}
 
+export function postSearchedBookList(title: string, place: string){
+    const searchedBookList: Object = searchBookData(
+        title,
+        place, 
+        getBookData()
+        )
     let searchResult: any = ContentService.createTextOutput();
     searchResult = searchResult.setMimeType(ContentService.MimeType.JAVASCRIPT);
-    searchResult = searchResult.setContent(JSON.stringify(searchedBookData));
-
-    let title: string = params.reqTitle;
-    let place: string = params.reqPlace;
-    let purchaser: string = params.reqUser;
-    let remarks:　string = params.reqAbout;
-
-    throwPurchaseRequest(title, place, purchaser, remarks)
+    searchResult = searchResult.setContent(JSON.stringify(searchedBookList));
 
     return searchResult
 }
 
-dotenv.config()
-// スプレッドシートから取り出したタイトルと場所をbookInformationに格納
-export function getBookData(): Array<any>{
-    let spreadSheet: any = SpreadsheetApp.openById(process.env.SPREAD_SHEET_id);
-    let sheet:any = spreadSheet.getSheetByName('library');
-    let columnAVals: any = sheet.getRange('A:A').getValues();
-    let lastRow: number = columnAVals.filter(String).length;
-    let startNum: number = 3;
-    let bookInformation: any[] = [];
-    for(let i = startNum; i <= lastRow; i++){
-      bookInformation.push({});
-      bookInformation[i-startNum].name = sheet.getRange(i, 2).getValue();
-      bookInformation[i-startNum].place = sheet.getRange(i, 4).getValue();
-    };
+export function bookDataSpreadSheet(id: string, name: string): Array<Array<string>>{
+    const spreadSheet: any = SpreadsheetApp.openById(id);
+    const sheet:any = spreadSheet.getSheetByName(name);
+    const columnAVals: any = sheet.getRange('A:A').getValues(); // A列で値が入っている最後の行
+    const lastRow: number = columnAVals.filter(String).length;
+    const titles: Array<string> = sheet.getRange(3,2,lastRow-2).getValues(); // B列の値を取る(1,2行目はヘッダー) 
+    const places: Array<string> = sheet.getRange(3,4,lastRow-2).getValues(); // D列の値を取る(1,2行目はヘッダー) 
 
-    return bookInformation;
+    return [titles, places]
 }
 
-// 検索条件に合致したタイトルと場所をsearchedBookInformationに格納
-export function searchBookData(keyWord: string, keyPlace: string, bookInformation: Array<any>): Object{
-    let searchingBookTitle: string = keyWord;
-    let searchingBookPlace: string = keyPlace;
-    let searchedBookInformation: any[] = [];
-    if(searchingBookPlace !== "unselected"){
-        for(let i in bookInformation){
-            if(bookInformation[i].name.indexOf(searchingBookTitle) != -1 && bookInformation[i].place == searchingBookPlace){
-                searchedBookInformation.push(bookInformation[i]);
+// スプレッドシートから取り出したタイトルと場所をbookInformationListで返す
+export function getBookData(): Array<{[key: string]: string}>{
+    const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', '<スプレッドシートの名前>')
+    const bookInformationList: Array<{[key: string]: string}> = [];
+    const bookNum: number = titles.length;
+    for(let i = 0; i < bookNum; i++){
+        bookInformationList.push(
+            {
+                name: titles[i][0],
+                place: places[i][0]
             }
-          }
-    }else{
-        for(let i in bookInformation){
-            if(bookInformation[i].name.indexOf(searchingBookTitle) != -1){
-              searchedBookInformation.push(bookInformation[i]);
+        )
+    }
+    
+    return bookInformationList;
+}
+
+// 検索条件に合致したタイトルと場所をsearchedBookInformationで返す
+export function searchBookData(keyWord: string, keyPlace: string, bookInformationList: Array<{[key: string]: string}>): {[key: string]: Array<{[key: string]: string}>}{
+    const searchingBookTitle: string = keyWord;
+    const searchingBookPlace: string = keyPlace;
+    const searchedBookInformationList: any[] = bookInformationList.filter(
+        _book => {
+            if(_book.name.indexOf(searchingBookTitle) == -1){
+                return false
+            }
+            if(searchingBookPlace === "unselected"){
+                return true
+            }else{
+                if(_book.place.indexOf(searchingBookPlace) == -1){
+                    return false
+                }else{
+                    return true
+                }
             }
         }
-    }
+    );
 
     return {
-      "result": searchedBookInformation
+        result: searchedBookInformationList
     }
 }
 
 // 購入依頼をスプレッドシートに記載
 export function throwPurchaseRequest(title: string, place: string, purchaser: string, remarks: string): void{
-    let spreadSheet: any = SpreadsheetApp.openById(process.env.SPREAD_SHEET_id);
-    let sheet:any = spreadSheet.getSheetByName('library');
-    let columnIVals: any = sheet.getRange('J:J').getValues();
-    let lastRow: string = columnIVals.filter(String).length;
-    sheet.getRange(lastRow+1, 10).setValue(title);
-    sheet.getRange(lastRow+1, 11).setValue(place);
-    sheet.getRange(lastRow+1, 12).setValue(purchaser);
-    sheet.getRange(lastRow+1, 13).setValue(remarks);
+    const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
+    const sheet:any = spreadSheet.getSheetByName('library');
+    const columnIVals: any = sheet.getRange('J:J').getValues(); 
+    const lastRow: string = columnIVals.filter(String).length; // J列で値が入っている最後の行
+    const data: Array<Array<string>> = [[title, place, purchaser, remarks]]
+    sheet.getRange(lastRow+1, 10, 1, 4).setValues(data); // J~M列に記載
+}
+
+//楽天APIから本のISBNから画像リンクに変換(ISBNカラム7→画像データカラム8)
+function getImage(){
+    const sheet: any = SpreadsheetApp.getActiveSheet();
+    const rng: any = sheet.getActiveCell();
+    let isbn: string = rng.getValue();
+    //ISBNコードにハイフン付きで入力された場合、削除
+    if(String(isbn).indexOf("-") > -1){
+        isbn = isbn.split("-").join("")
+    }
+    const row : number= rng.getRow();
+    if (rng.getColumn() !== 7) return;
+
+    let url: string = "https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?applicationId=<アプリケーションID>&isbn="+isbn
+    const response: any = UrlFetchApp.fetch(url);
+    const infoJson: any =JSON.parse(response.getContentText());
+    const imageUrl: string = infoJson.Items[0].Item.mediumImageUrl;
+    fillSheet(imageUrl, row)
+}
+
+function fillSheet(imageUrl, row){
+    const sheet: any = SpreadsheetApp.getActiveSheet();
+    sheet.getRange(row, 8).setValue(imageUrl)
 }
