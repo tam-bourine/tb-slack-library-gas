@@ -7,8 +7,9 @@ SpreadsheetApp.openById = jest.fn(() => ({
             getRange: jest.fn(() => (
                 {
                     getValues: jest.fn()
+                                   .mockReturnValueOnce([['1'],['2'],['3'],['4']])
                                    .mockReturnValueOnce([['デザインを学ぶ'],['採用基準']])
-                                  
+                                   .mockReturnValueOnce([['東京'],['大阪']])
                 }
             ))
         }
@@ -18,14 +19,15 @@ SpreadsheetApp.openById = jest.fn(() => ({
 describe('getBookData関数の挙動', () => {
     it('本のタイトルを取ってこれる', () => {
         const bookInformationList = getBookData();
+        console.log(bookInformationList)
         expect(bookInformationList[0].name).toBe('デザインを学ぶ')
         expect(bookInformationList[1].name).toBe('採用基準')
     })
-    // it('本の場所を取ってこれる', () => {
-    //     const bookInformationList = getBookData();
-    //     expect(bookInformationList[0].place).toBe('東京')
-    //     expect(bookInformationList[1].place).toBe('大阪')
-    // })
+    it('本の場所を取ってこれる', () => {
+        const bookInformationList = getBookData();
+        expect(bookInformationList[0].place).toBe('東京')
+        expect(bookInformationList[1].place).toBe('大阪')
+    })
 });
 
 
