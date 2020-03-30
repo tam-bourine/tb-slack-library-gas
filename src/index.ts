@@ -14,7 +14,7 @@ export function postSearchedBookList(title: string, place: string){
         title,
         place, 
         getBookData()
-        )
+    )
     let searchResult: any = ContentService.createTextOutput();
     searchResult = searchResult.setMimeType(ContentService.MimeType.JAVASCRIPT);
     searchResult = searchResult.setContent(JSON.stringify(searchedBookList));
