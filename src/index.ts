@@ -4,7 +4,7 @@ export function doPost(e: any): any{
     if(params.key){
         return postSearchedBookList(params.key, params.place);
     } else {
-        throwPurchaseRequest(params.reqTitle, params.reqPlace, params.reqUser, params.reqAbout);
+        throwPurchaseRequest(params.reqTitle, params.reqPlace, params.reqUser, params.reqAbout, params.reqIsbn);
     }
 }
 
@@ -34,7 +34,7 @@ export function bookDataSpreadSheet(id: string, name: string): Array<Array<strin
 
 // スプレッドシートから取り出したタイトルと場所をbookInformationListで返す
 export function getBookData(): Array<{[key: string]: string}>{
-    const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', '<スプレッドシートの名前>')
+    const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', 'library')
     const bookInformationList: Array<{[key: string]: string}> = [];
     const bookNum: number = titles.length;
     for(let i = 0; i < bookNum; i++){
@@ -76,13 +76,13 @@ export function searchBookData(keyWord: string, keyPlace: string, bookInformatio
 }
 
 // 購入依頼をスプレッドシートに記載
-export function throwPurchaseRequest(title: string, place: string, purchaser: string, remarks: string): void{
+export function throwPurchaseRequest(title: string, place: string, purchaser: string, remarks: string, isbn:string): void{
     const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
     const sheet:any = spreadSheet.getSheetByName('library');
     const columnIVals: any = sheet.getRange('J:J').getValues(); 
     const lastRow: string = columnIVals.filter(String).length; // J列で値が入っている最後の行
-    const data: Array<Array<string>> = [[title, place, purchaser, remarks]]
-    sheet.getRange(lastRow+1, 10, 1, 4).setValues(data); // J~M列に記載
+    const data: Array<Array<string>> = [[title, place, purchaser, remarks, isbn]]
+    sheet.getRange(lastRow+1, 10, 1, 5).setValues(data); // J~O列に記載
 }
 
 //楽天APIから本のISBNから画像リンクに変換(ISBNカラム7→画像データカラム8)
@@ -104,7 +104,30 @@ function getImage(){
     fillSheet(imageUrl, row)
 }
 
+//画像データをカラム8に入れる
 function fillSheet(imageUrl, row){
     const sheet: any = SpreadsheetApp.getActiveSheet();
     sheet.getRange(row, 8).setValue(imageUrl)
+}
+
+//ISBNから画像データを返してあげる
+function GetBookImage(reqIsbn){
+    let isbn = reqIsbn
+    //ISBNコードにハイフン付きで入力された場合、削除
+    if(String(isbn).indexOf("-") > -1){
+      isbn = isbn.split("-").join("")
+    }
+    let url = "https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?applicationId=<アプリケーションID>&isbn="+isbn
+    let response = UrlFetchApp.fetch(url);
+    let infoJson=JSON.parse(response.getContentText());
+    let imageUrl = infoJson.Items[0].Item.mediumImageUrl;
+    return imageUrl
+}
+
+//画像データをオブジェクトにする
+function retUrl(reqIsbn){
+    const imageUrl = GetBookImage(reqIsbn)
+    return {
+      image:imageUrl
+    }
 }
