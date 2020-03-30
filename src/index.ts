@@ -1,4 +1,4 @@
-//検索結果のレスポンス処理
+// 検索結果のレスポンス処理
 export function doPost(e: any): any{
     const params: any = JSON.parse(e.postData.getDataAsString());
     if(params.key){
@@ -8,6 +8,7 @@ export function doPost(e: any): any{
     }
 }
 
+// 検索に合致した本を返す
 export function postSearchedBookList(title: string, place: string){
     const searchedBookList: Object = searchBookData(
         title,
@@ -21,6 +22,7 @@ export function postSearchedBookList(title: string, place: string){
     return searchResult
 }
 
+// スプレッドシートを開いて本のタイトルと場所を取得して返す
 export function bookDataSpreadSheet(id: string, name: string): Array<Array<string>>{
     const spreadSheet: any = SpreadsheetApp.openById(id);
     const sheet:any = spreadSheet.getSheetByName(name);
@@ -32,7 +34,7 @@ export function bookDataSpreadSheet(id: string, name: string): Array<Array<strin
     return [titles, places]
 }
 
-// スプレッドシートから取り出したタイトルと場所をbookInformationListで返す
+// スプレッドシートから取り出したタイトルと場所をbookInformationListに格納して返す
 export function getBookData(): Array<{[key: string]: string}>{
     const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', 'library')
     const bookInformationList: Array<{[key: string]: string}> = [];
