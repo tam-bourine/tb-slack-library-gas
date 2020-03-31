@@ -1,6 +1,4 @@
 node_modules
 yarn.lock
-.clasp.json
 package-lock.json
-.env
 tsconfig.json
