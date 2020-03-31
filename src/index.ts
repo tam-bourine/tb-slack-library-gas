@@ -6,6 +6,10 @@ export function doPost(e: any): any{
     } else {
         throwPurchaseRequest(params.reqTitle, params.reqPlace, params.reqUser, params.reqAbout, params.reqIsbn);
     }
+    let throwPurchaseRequestData = ContentService.createTextOutput();
+    throwPurchaseRequestData = throwPurchaseRequestData.setMimeType(ContentService.MimeType.JAVASCRIPT);
+    throwPurchaseRequestData = throwPurchaseRequestData.setContent(JSON.stringify(retUrl(params.reqIsbn)));
+    return throwPurchaseRequestData
 }
 
 // 検索に合致した本を返す
