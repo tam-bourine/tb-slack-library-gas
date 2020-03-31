@@ -87,7 +87,7 @@ export function throwPurchaseRequest(title: string, place: string, purchaser: st
     sheet.getRange(lastRow+1, 10, 1, 5).setValues(data); // J~N列に記載
 }
 
-//楽天APIから本のISBNから画像リンクに変換(ISBNカラム7→画像データカラム8)
+//楽天APIから本のISBNから画像リンクに変換(ISBNカラム6→画像データカラム7)
 function getImage(){
     // アクティブなセルの情報を取得
     const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
@@ -98,22 +98,22 @@ function getImage(){
   //編集されたカラムを取得
     const row = rng.getRow();
   //編集されたカラムが7じゃない時終了
-  if (rng.getColumn() !== 7 && rng.getColumn() !== 14) return;
-  if( rng.getColumn() === 14){
+  if (rng.getColumn() !== 6 && rng.getColumn() !== 13) return;
+  if( rng.getColumn() === 13){
     const imageUrl = GetBookImage(isbn)
-    fillSheet15(imageUrl, row)
+    fillSheet14(imageUrl, row)
   }
   else{
     const imageUrl = GetBookImage(isbn)
-    fillSheet8(imageUrl, row)
+    fillSheet7(imageUrl, row)
   }
 }
 
-//画像データをカラム8に入れる
-function fillSheet8(imageUrl, row){
+//画像データをカラム7に入れる
+function fillSheet7(imageUrl, row){
     const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
     const sheet:any = spreadSheet.getSheetByName('<シート名>');
-    sheet.getRange(row, 8).setValue(imageUrl)
+    sheet.getRange(row, 7).setValue(imageUrl)
 }
 
 //ISBNから画像データを返してあげる
@@ -138,9 +138,9 @@ function retUrl(reqIsbn){
     }
 }
 
-//画像データをカラム15に入れる
-function fillSheet15(imageUrl, row){
+//画像データをカラム14に入れる
+function fillSheet14(imageUrl, row){
     const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
     const sheet:any = spreadSheet.getSheetByName('<シート名>');
-    sheet.getRange(row, 15).setValue(imageUrl)
+    sheet.getRange(row, 14).setValue(imageUrl)
 }
