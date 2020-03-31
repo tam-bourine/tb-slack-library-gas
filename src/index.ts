@@ -95,18 +95,18 @@ function getImage(){
     const rng = sheet.getActiveCell();
     // アクティブなセルの値
     let isbn = rng.getValue();
-  //編集されたカラムを取得
-    const row = rng.getRow();
-  //編集されたカラムが6じゃない時終了
-  if (rng.getColumn() !== 6 && rng.getColumn() !== 13) return;
-  if( rng.getColumn() === 13){
-    const imageUrl = GetBookImage(isbn)
-    fillSheet14(imageUrl, row)
-  }
-  else{
-    const imageUrl = GetBookImage(isbn)
-    fillSheet7(imageUrl, row)
-  }
+    //編集されたカラムを取得
+      const row = rng.getRow();
+    //編集されたカラムが6じゃない時終了
+    if (rng.getColumn() !== 6 && rng.getColumn() !== 13) return;
+    if( rng.getColumn() === 13){
+      const imageUrl = GetBookImage(isbn)
+      fillSheet14(imageUrl, row)
+    }
+    else{
+      const imageUrl = GetBookImage(isbn)
+      fillSheet7(imageUrl, row)
+    }
 }
 
 //画像データをカラム7に入れる
