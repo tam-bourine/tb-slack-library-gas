@@ -29,14 +29,14 @@ export function bookDataSpreadSheet(id: string, name: string): Array<Array<strin
     const columnAVals: any = sheet.getRange('A:A').getValues(); // A列で値が入っている最後の行
     const lastRow: number = columnAVals.filter(String).length;
     const titles: Array<string> = sheet.getRange(3,2,lastRow-2).getValues(); // B列の値を取る(1,2行目はヘッダー) 
-    const places: Array<string> = sheet.getRange(3,4,lastRow-2).getValues(); // D列の値を取る(1,2行目はヘッダー) 
+    const places: Array<string> = sheet.getRange(3,3,lastRow-2).getValues(); // C列の値を取る(1,2行目はヘッダー) 
 
     return [titles, places]
 }
 
 // スプレッドシートから取り出したタイトルと場所をbookInformationListに格納して返す
 export function getBookData(): Array<{[key: string]: string}>{
-    const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', 'library')
+    const [titles, places]: Array<Array<string>> = bookDataSpreadSheet('<スプレッドシートID>', '<シート名>')
     const bookInformationList: Array<{[key: string]: string}> = [];
     const bookNum: number = titles.length;
     for(let i = 0; i < bookNum; i++){
@@ -80,35 +80,39 @@ export function searchBookData(keyWord: string, keyPlace: string, bookInformatio
 // 購入依頼をスプレッドシートに記載
 export function throwPurchaseRequest(title: string, place: string, purchaser: string, remarks: string, isbn:string): void{
     const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
-    const sheet:any = spreadSheet.getSheetByName('library');
+    const sheet:any = spreadSheet.getSheetByName('<シート名>');
     const columnIVals: any = sheet.getRange('J:J').getValues(); 
     const lastRow: string = columnIVals.filter(String).length; // J列で値が入っている最後の行
     const data: Array<Array<string>> = [[title, place, purchaser, remarks, isbn]]
-    sheet.getRange(lastRow+1, 10, 1, 5).setValues(data); // J~O列に記載
+    sheet.getRange(lastRow+1, 10, 1, 5).setValues(data); // J~N列に記載
 }
 
 //楽天APIから本のISBNから画像リンクに変換(ISBNカラム7→画像データカラム8)
 function getImage(){
-    const sheet: any = SpreadsheetApp.getActiveSheet();
-    const rng: any = sheet.getActiveCell();
-    let isbn: string = rng.getValue();
-    //ISBNコードにハイフン付きで入力された場合、削除
-    if(String(isbn).indexOf("-") > -1){
-        isbn = isbn.split("-").join("")
-    }
-    const row : number= rng.getRow();
-    if (rng.getColumn() !== 7) return;
-
-    let url: string = "https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?applicationId=<アプリケーションID>&isbn="+isbn
-    const response: any = UrlFetchApp.fetch(url);
-    const infoJson: any =JSON.parse(response.getContentText());
-    const imageUrl: string = infoJson.Items[0].Item.mediumImageUrl;
-    fillSheet(imageUrl, row)
+    // アクティブなセルの情報を取得
+    const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
+    const sheet:any = spreadSheet.getSheetByName('<シート名>');
+    const rng = sheet.getActiveCell();
+    // アクティブなセルの値
+    let isbn = rng.getValue();
+  //編集されたカラムを取得
+    const row = rng.getRow();
+  //編集されたカラムが7じゃない時終了
+  if (rng.getColumn() !== 7 && rng.getColumn() !== 14) return;
+  if( rng.getColumn() === 14){
+    const imageUrl = GetBookImage(isbn)
+    fillSheet15(imageUrl, row)
+  }
+  else{
+    const imageUrl = GetBookImage(isbn)
+    fillSheet8(imageUrl, row)
+  }
 }
 
 //画像データをカラム8に入れる
-function fillSheet(imageUrl, row){
-    const sheet: any = SpreadsheetApp.getActiveSheet();
+function fillSheet8(imageUrl, row){
+    const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
+    const sheet:any = spreadSheet.getSheetByName('<シート名>');
     sheet.getRange(row, 8).setValue(imageUrl)
 }
 
@@ -132,4 +136,11 @@ function retUrl(reqIsbn){
     return {
       image:imageUrl
     }
+}
+
+//画像データをカラム15に入れる
+function fillSheet15(imageUrl, row){
+    const spreadSheet: any = SpreadsheetApp.openById('<スプレッドシートID>');
+    const sheet:any = spreadSheet.getSheetByName('<シート名>');
+    sheet.getRange(row, 15).setValue(imageUrl)
 }
