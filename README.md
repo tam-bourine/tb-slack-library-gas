@@ -8,3 +8,6 @@ GAS + Typescript + clasp + Jest
 
 `カラムI~N` : 購入依頼一覧
 
+## トリガー
+
+スプレッドシート編集時に`getImage関数`を実行
